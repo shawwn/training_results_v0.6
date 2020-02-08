@@ -271,6 +271,11 @@ LR_SCHEDULE = [    # (multiplier, epoch to start) tuples
 ]
 
 flags.DEFINE_boolean(
+    'output_summaries',
+    default=False,
+    help=('When set to true, outputs tensorboard logs'))
+
+flags.DEFINE_boolean(
     'enable_auto_tracing',
     default=False,
     help=('When set to true traces collected from worker-0 on every run'))
@@ -764,6 +769,7 @@ def main(unused_argv):
     elif FLAGS.mode == 'in_memory_eval':
       if FLAGS.use_train_runner:
         low_level_runner.train_and_eval(
+            output_summaries=FLAGS.output_summaries,
             enable_tracing=FLAGS.enable_auto_tracing)
         low_level_runner.shutdown()
       else:

@@ -1,4 +1,19 @@
-PYTHONPATH=.:/tmp/code_dir-resnet_code_1558673290/staging/models/rough/transformer/data_generators/:/tmp/code_dir-resnet_code_1558673290/staging/models/rough/:$PYTHONPATH python3 resnet_main.py --data_dir=gs://mlperf-euw4/garden-imgnet/imagenet/combined \
+set -ex
+i="$1"
+shift 1
+i=`printf '%04d' $i`
+#data_dir=gs://mlperf-euw4/garden-imgnet/imagenet/combined
+#model_dir=gs://mlsh_test/dev/assets/model_dir-resnet_model_dir_1558673290 
+#tpu=TEST_TPU_1558673473.0 
+TPU_CORES="${TPU_CORES:-512}"
+data_dir="gs://gpt-2-poetry/data/imagenet/out"
+model_dir="gs://gpt-2-poetry/mlperf/benchmarks/imagenet/tf-1-14-1-dev20190518/v3-${TPU_CORES}/results-${i}"
+export_dir="gs://gpt-2-poetry/mlperf/benchmarks/imagenet/tf-1-14-1-dev20190518/v3-${TPU_CORES}/results-${i}"
+TPU_INDEX="${TPU_INDEX:-2}"
+tpu="${TPU_NAME:-tpu-v3-${TPU_CORES}-euw4a-${TPU_INDEX}}"
+
+PYTHONPATH=.:..:/tmp/code_dir-resnet_code_1558673290/staging/models/rough/transformer/data_generators/:/tmp/code_dir-resnet_code_1558673290/staging/models/rough/:$PYTHONPATH exec python3 resnet_main.py --data_dir="$data_dir" \
+--output_summaries=True \
 --distributed_group_size=1 \
 --enable_lars=True \
 --eval_batch_size=32768 \
@@ -8,7 +23,8 @@ PYTHONPATH=.:/tmp/code_dir-resnet_code_1558673290/staging/models/rough/transform
 --lars_epsilon=1e-05 \
 --lars_warmup_epochs=25 \
 --mode=in_memory_eval \
---model_dir=gs://mlsh_test/dev/assets/model_dir-resnet_model_dir_1558673290 \
+--model_dir="$model_dir" \
+--export_dir="$export_dir" \
 --num_cores=512 \
 --num_prefetch_threads=16 \
 --prefetch_depth_auto_tune=True \
@@ -16,7 +32,7 @@ PYTHONPATH=.:/tmp/code_dir-resnet_code_1558673290/staging/models/rough/transform
 --skip_host_call=True \
 --steps_per_eval=157 \
 --stop_threshold=0.759 \
---tpu=TEST_TPU_1558673473.0 \
+--tpu=$tpu \
 --train_batch_size=32768 \
 --train_steps=2983 \
 --use_async_checkpointing=True \
